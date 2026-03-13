@@ -5,6 +5,7 @@ import Login from './components/Admin/Login';
 import { supabase } from './components/Admin/supabaseClient';
 
 function App() {
+  // Logic to detect URL changes
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [availableSlots, setAvailableSlots] = useState([]);
@@ -19,6 +20,16 @@ function App() {
     }
     return id;
   });
+
+  // --- FIX: Listen for URL changes (so /admin works without refresh) ---
+  useEffect(() => {
+    const handleLocationChange = () => {
+      setCurrentPath(window.location.pathname);
+    };
+
+    window.addEventListener('popstate', handleLocationChange);
+    return () => window.removeEventListener('popstate', handleLocationChange);
+  }, []);
 
   const fetchData = async () => {
     try {
@@ -68,20 +79,14 @@ function App() {
     initialize();
   }, []);
 
-  // --- UPDATED TICK ACTION ---
   const markBookingComplete = async (bookingId) => {
     try {
-      console.log("Attempting to complete booking:", bookingId);
-      
-      // Update the 'completed' column in Supabase
       const { error } = await supabase
         .from('bookings')
         .update({ completed: true })
         .eq('id', bookingId);
 
       if (error) throw error;
-
-      // Force a re-fetch to update the Admin UI immediately
       await fetchData(); 
     } catch (err) {
       console.error("Error marking booking complete:", err.message);
@@ -120,7 +125,8 @@ function App() {
   };
 
   const addMassSlots = async (newSlots) => {
-    await supabase.from('slots').insert(newSlots);
+    const { error } = await supabase.from('slots').insert(newSlots);
+    if (error) alert("Add failed: " + error.message);
     fetchData();
   };
 
@@ -132,11 +138,23 @@ function App() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setIsAuthenticated(false);
-    window.location.href = '/';
+    window.history.pushState({}, '', '/');
+    setCurrentPath('/');
   };
 
-  if (loading) return <div className="h-screen w-full flex items-center justify-center bg-background"><div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div></div>;
+  // Utility to navigate without refresh
+  const navigateTo = (path) => {
+    window.history.pushState({}, '', path);
+    setCurrentPath(path);
+  };
 
+  if (loading) return (
+    <div className="h-screen w-full flex items-center justify-center bg-background">
+      <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+    </div>
+  );
+
+  // --- ROUTING LOGIC ---
   if (currentPath === '/admin') {
     return isAuthenticated ? (
       <DoctorAdmin 
@@ -144,7 +162,7 @@ function App() {
         bookings={bookings} 
         onAdd={addMassSlots}
         onDelete={deleteSlot}
-        onCompleteBooking={markBookingComplete} // Ensure this is passed correctly
+        onCompleteBooking={markBookingComplete}
         onLogout={handleLogout} 
       />
     ) : (
@@ -159,7 +177,8 @@ function App() {
       availableSlots={availableSlots} 
       bookings={myBookings} 
       onBook={handleNewBooking} 
-      onCancelBooking={cancelBooking} 
+      onCancelBooking={cancelBooking}
+      onAdminClick={() => navigateTo('/admin')} // Pass navigation function
     />
   );
 }
