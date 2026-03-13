@@ -1,0 +1,117 @@
+@import "tailwindcss";
+
+@theme {
+  /* Exact MedBook Atrium Colors */
+  --color-primary: #00666c;
+  --color-primary-container: #1d8187;
+  --color-on-primary: #ffffff;
+  
+  --color-secondary: #515f74;
+  --color-secondary-container: #d5e3fd;
+  --color-on-secondary-container: #57657b;
+  
+  --color-tertiary: #006860;
+  --color-tertiary-fixed: #79f7ea;
+  --color-tertiary-container: #00837a;
+  
+  --color-background: #f8f9ff;
+  --color-surface: #f8f9ff;
+  --color-on-surface: #0b1c30;
+  --color-on-surface-variant: #3e494a;
+  
+  --color-surface-container-low: #eff4ff;
+  --color-surface-container-high: #dce9ff;
+  --color-surface-container-highest: #d3e4fe;
+  --color-surface-container-lowest: #ffffff;
+  
+  --color-outline: #6e797a;
+  --color-outline-variant: #bdc9c9;
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+
+  /* Custom Fonts Matching Template */
+  --font-headline: "Noto Serif", serif;
+  --font-body: "Manrope", sans-serif;
+  --font-label: "Manrope", sans-serif;
+
+  /* Animation Overrides */
+  --animate-pulse: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Global Styles & Design Logic */
+@layer base {
+  body {
+    @apply bg-background text-on-surface font-body antialiased;
+    /* Smooth scrolling for the whole page */
+    scroll-behavior: smooth;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-headline font-bold;
+  }
+
+  /* Focus rings for accessibility */
+  :focus-visible {
+    @apply outline-none ring-2 ring-primary/30;
+  }
+}
+
+/* --- Custom Design Utilities --- */
+
+/* Glass effect used in the Nav and Modals */
+.glass-effect {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background-color: rgba(248, 249, 255, 0.7);
+}
+
+/* The signature glow for the Voice Assistant Orb */
+.voice-orb-glow {
+  box-shadow: 0 0 20px 5px rgba(121, 247, 234, 0.3), 
+              0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* Material Symbols configuration */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  /* Fix for crisp icon rendering */
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Scrollbar for Chat & Appointments Sidebar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-outline-variant rounded-full;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  @apply bg-outline;
+}
+
+/* Selection Highlight - Matching your Primary brand */
+::selection {
+  @apply bg-primary/20 text-on-surface;
+}
+
+/* Utility to hide scrollbars but keep functionality */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
